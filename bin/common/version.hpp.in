@@ -1,0 +1,8 @@
+// This is a private header, i.e. it is include only in `.cpp` files.
+// That allows using modern `#pragma once` instead of more traditional
+// `#ifndef/#define/#endif` include guards.
+#pragma once
+
+namespace common {
+constexpr const char* version = "@version@";
+}

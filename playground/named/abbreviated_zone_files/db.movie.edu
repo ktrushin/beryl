@@ -1,0 +1,118 @@
+$TTL 3h
+
+;
+; Origin added to names not ending in a dot: movie.edu.
+;
+@ IN SOA toystory.movie.edu. al.movie.edu. (
+    1 ; Serial
+    3h ; Refresh after 3 hours
+    1h ; Retry after 1 hour
+    1w ; Expire after 1 week
+    1h ) ; Negative caching TTL of 1 hour
+
+;
+; Name servers (The name '@' is implied)
+;
+    IN NS toystory.movie.edu.
+    IN NS wormhole.movie.edu.
+
+;
+; Addresses for the canonical names
+;
+localhost    IN A 127.0.0.1
+
+shrek        IN A 192.249.249.2
+toystory     IN A 192.249.249.3
+monsters-inc IN A 192.249.249.4
+
+misery       IN A 192.253.253.2
+shining      IN A 192.253.253.3
+carrie       IN A 192.253.253.4
+
+wormhole     IN A 192.249.249.1
+             IN A 192.253.253.1
+
+;
+; Aliases
+;
+toys IN CNAME toystory
+mi   IN CNAME monsters-inc
+wh   IN CNAME wormhole
+
+;
+; Interface specific names
+;
+wh249 IN A 192.249.249.1
+wh253 IN A 192.253.253.1
+
+
+foo IN A 192.253.253.100
+    IN A 192.253.253.101
+    IN A 192.253.253.102
+    IN A 192.253.253.103
+    IN A 192.253.253.104
+    IN A 192.253.253.105
+    IN A 192.253.253.106
+    IN A 192.253.253.107
+    IN A 192.253.253.108
+    IN A 192.253.253.109
+    IN A 192.253.253.110
+    IN A 192.253.253.111
+    IN A 192.253.253.112
+    IN A 192.253.253.113
+    IN A 192.253.253.114
+    IN A 192.253.253.115
+    IN A 192.253.253.116
+    IN A 192.253.253.117
+    IN A 192.253.253.118
+    IN A 192.253.253.119
+    IN A 192.253.253.120
+    IN A 192.253.253.121
+    IN A 192.253.253.122
+    IN A 192.253.253.123
+    IN A 192.253.253.124
+    IN A 192.253.253.125
+    IN A 192.253.253.126
+    IN A 192.253.253.127
+    IN A 192.253.253.128
+    IN A 192.253.253.129
+    IN A 192.253.253.130
+    IN A 192.253.253.131
+    IN A 192.253.253.132
+    IN A 192.253.253.133
+    IN A 192.253.253.134
+    IN A 192.253.253.135
+    IN A 192.253.253.136
+    IN A 192.253.253.137
+    IN A 192.253.253.138
+    IN A 192.253.253.139
+    IN A 192.253.253.140
+    IN A 192.253.253.141
+    IN A 192.253.253.142
+    IN A 192.253.253.143
+    IN A 192.253.253.144
+    IN A 192.253.253.145
+    IN A 192.253.253.146
+    IN A 192.253.253.147
+    IN A 192.253.253.148
+    IN A 192.253.253.149
+    IN A 192.253.253.150
+    IN A 192.253.253.151
+    IN A 192.253.253.152
+    IN A 192.253.253.153
+    IN A 192.253.253.154
+    IN A 192.253.253.155
+    IN A 192.253.253.156
+    IN A 192.253.253.157
+    IN A 192.253.253.158
+    IN A 192.253.253.159
+    IN A 192.253.253.160
+    IN A 192.253.253.161
+    IN A 192.253.253.162
+    IN A 192.253.253.163
+    IN A 192.253.253.164
+    IN A 192.253.253.165
+    IN A 192.253.253.166
+    IN A 192.253.253.167
+    IN A 192.253.253.168
+    IN A 192.253.253.169

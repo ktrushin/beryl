@@ -1,0 +1,4 @@
+Checks: 'clang-diagnostic-*,clang-analyzer-*,misc-*,bugprone-*,modernize-*,performance-*,portability-*,readability-*'
+WarningsAsErrors: ''
+HeaderFilterRegex: ''
+AnalyzeTemporaryDtors: false

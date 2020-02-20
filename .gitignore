@@ -1,0 +1,10 @@
+# In `subprojects` directory, ignore everything except .wrap files.
+/subprojects/*
+!/subprojects/*.wrap
+
+# By convention, all directories for build artifacts start with `_build`.
+# Ignore all such directories.
+/_build*/
+
+# Ignore everything in `tmp` subdirectory.
+/tmp/*
