@@ -59,16 +59,16 @@ std::size_t data_token_count(record_type rt) {
   // clang-format off
   switch (rt) {
     // IPv4 address
-    case record_type::a: return 1;  // NOLINT(readability-magic-numbers)
+    case record_type::a:
+    // IPv6 address
+    case record_type::aaaa:
     // nameserver name
-    case record_type::ns: return 1;  // NOLINT(readability-magic-numbers)
+    case record_type::ns:
     // canonical name
     case record_type::cname: return 1;  // NOLINT(readability-magic-numbers)
     // primary nameserver name, domain admin mailbox, serial, refresh, retry,
     // expire, minimum
     case record_type::soa: return 7;  // NOLINT(readability-magic-numbers)
-    // IPv6 address
-    case record_type::aaaa: return 1;  // NOLINT(readability-magic-numbers)
   }
   // clang-format off
   assert(false && "unexpected record type");

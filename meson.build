@@ -4,7 +4,7 @@ project(
   version: run_command(find_program('get_version.sh'), '--project')
     .stdout().strip(),
   license: 'MIT',
-  meson_version: '>= 0.52.0',
+  meson_version: '>= 0.53.2',
   default_options: [
     'cpp_std=c++17',
     'warning_level=3',

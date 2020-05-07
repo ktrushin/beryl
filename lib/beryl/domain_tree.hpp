@@ -94,7 +94,6 @@ private:
     value_container_type _values;
   };
 
-private:
   template <typename NodePtr, typename NodeIterator, typename ValueIterator>
   class cursor_proto {
   public:

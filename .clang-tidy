@@ -1,4 +1,14 @@
-Checks: 'clang-diagnostic-*,clang-analyzer-*,misc-*,bugprone-*,modernize-*,performance-*,portability-*,readability-*'
+Checks: >
+  clang-diagnostic-*,
+  clang-analyzer-*,
+  misc-*,
+  bugprone-*,
+  modernize-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  -modernize-use-trailing-return-type
+
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
 AnalyzeTemporaryDtors: false
