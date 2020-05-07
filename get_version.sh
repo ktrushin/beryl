@@ -30,10 +30,10 @@ age=0
 ############################### VERSIONING LOGIC ###############################
 project_version="$major.$minor.$patch"
 if [ ! -z "$prerelease" ]; then
-    project_version="$project_version-$prerelease"
+  project_version="$project_version-$prerelease"
 fi
 if [ ! -z "$build_metadata" ]; then
-    project_version="$project_version+$build_metadata"
+  project_version="$project_version+$build_metadata"
 fi
 
 library_version="$current:$revision:$age"
@@ -46,58 +46,40 @@ prog="get_version.sh"
 
 help_msg="\
 Description:
-    Print version of a specified entity.
+  Print version of a specified entity.
 
 Usage:
-    $prog (--project|--library|--shared_object|--library_suffix)
+  $prog (--project|--library|--shared_object|--library_suffix)
 
 Options:
-    --project           Print project version.
-    --library           Print shared library version in Libtool's format.
-    --shared_object     Print shared object version (aka soversion).
-    --library_suffix    Print library file suffix.
-    -h, --help          Print this help message.
+  --project           Print project version.
+  --library           Print shared library version in Libtool's format.
+  --shared_object     Print shared object version (aka soversion).
+  --library_suffix    Print library file suffix.
+  -h, --help          Print this help message.
 
 See also:
-    Semantic Versioning:
-        https://semver.org
-    Libtool's versioning system:
-        https://www.gnu.org/software/libtool/manual/libtool.html#Libtool-versioning"
+  Semantic Versioning:
+    https://semver.org
+  Libtool's versioning system:
+    https://www.gnu.org/software/libtool/manual/libtool.html#Libtool-versioning"
 
 print_error() {
-    echo "Error: $1\n$help_msg" >&2
+  echo "Error: $1\n$help_msg" >&2
 }
 
 if [ "$#" -ne 1 ]; then
-    print_error "$prog must be provided with exactly one option."
-    exit 1
+  print_error "$prog must be provided with exactly one option."
+  exit 1
 fi
 
 case "$1" in
-    -h|--help)
-        echo "$help_msg"
-        exit 0
-        ;;
-    --project)
-        echo "$project_version"
-        exit 0
-        ;;
-    --library)
-        echo "$library_version"
-        exit 0
-        ;;
-    --shared_object)
-        echo "$soversion"
-        exit 0
-        ;;
-    --library_suffix)
-        echo "$library_suffix"
-        exit 0
-        ;;
-    *)
-        print_error "unrecongnized input."
-        exit 1
-        ;;
+  -h|--help) echo "$help_msg"; exit 0;;
+  --project) echo "$project_version"; exit 0;;
+  --library) echo "$library_version"; exit 0;;
+  --shared_object) echo "$soversion"; exit 0;;
+  --library_suffix) echo "$library_suffix"; exit 0;;
+  *) print_error "unrecongnized input."; exit 1;;
 esac
 
 print_error "no option is specified"

@@ -4,7 +4,7 @@ set -e
 
 clang_format_exe=$CLANG_FORMAT
 if [ -z "$clang_format_exe" ]; then
-    clang_format_exe='clang-format'
+  clang_format_exe='clang-format'
 fi
 
 source_files=$(find bin/ include/ lib/ unit_tests/ -name '*.[h|c]pp')
