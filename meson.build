@@ -30,6 +30,10 @@ cpp_hardening_args = [
   '-Werror=format-security',
   '-D_FORTIFY_SOURCE=2'
 ]
+compiler = meson.get_compiler('cpp')
+if compiler.get_id() == 'gcc'
+  cpp_hardening_args += ['-fstack-clash-protection']
+endif
 link_hardeining_args = [
   '-Wl,-z,relro',
   '-Wl,-z,defs',
