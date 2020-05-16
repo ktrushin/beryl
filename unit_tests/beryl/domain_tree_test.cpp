@@ -22,11 +22,23 @@ TEST(domain_tree_test, empty) {
   EXPECT_EQ(t.find(domain_name("bravo.alpha.")), t.end());
   EXPECT_EQ(t.find(domain_name("charlie.bravo.alpha.")), t.end());
   EXPECT_EQ(t.find(domain_name("delta.charlie.bravo.alpha.")), t.end());
+
+  {
+    std::vector<domain_name> dnames;
+    std::vector<int> vals;
+    auto f = [&dnames, &vals](const domain_name& dname, auto first, auto last) {
+      dnames.push_back(dname);
+      vals.insert(vals.end(), first, last);
+    };
+    EXPECT_EQ(t.find(domain_name("alpha."), f), t.end());
+    EXPECT_EQ(dnames, std::vector<domain_name>({domain_name(".")}));
+    EXPECT_TRUE(vals.empty());
+  }
 }
 
 namespace {
 void test_insertion(const std::string& dname,
-                    const std::array<int, 3>& values) {
+                    const std::array<int, 2>& values) {
   SCOPED_TRACE(dname);
 
   domain_tree<int> t;
@@ -67,6 +79,20 @@ void expect_domain_tree_eq(
   }
   EXPECT_EQ(got, expected);
 }
+
+using trace_t = std::vector<std::pair<std::string, std::multiset<int>>>;
+class tracer {
+public:
+  tracer(trace_t& trace) : _trace(trace) {}
+  template <typename ForwardIterator>
+  void operator()(const domain_name& dname, ForwardIterator first,
+                  ForwardIterator last) {
+    _trace.emplace_back(to_string(dname), std::multiset<int>(first, last));
+  }
+
+private:
+  trace_t& _trace;
+};
 }  // namespace
 
 TEST(domain_tree_test, insertion) {
@@ -139,13 +165,19 @@ TEST(domain_tree_test, iteration) {
 }
 // clang-format on
 
-TEST(domain_tree_test, find) {
-  auto dtree = generate_domain_tree({{"charlie.bravo.alpha.", {22, 2}},
-                                     {"delta.alpha.", {3}},
-                                     {"foxtrot.echo.", {44, 4, 444}},
-                                     {"hotel.golf.", {555, 55, 5}},
-                                     {"juliett.india.golf.", {6, 66}},
-                                     {"mike.lima.kilo.india.golf.", {77, 7}}});
+template <typename T>
+class domain_tree_find_test : public ::testing::Test {};
+
+TYPED_TEST_SUITE_P(domain_tree_find_test);
+
+TYPED_TEST_P(domain_tree_find_test, no_functor) {
+  TypeParam dtree =
+      generate_domain_tree({{"charlie.bravo.alpha.", {22, 2}},
+                            {"delta.alpha.", {3}},
+                            {"foxtrot.echo.", {44, 4, 444}},
+                            {"hotel.golf.", {555, 55, 5}},
+                            {"juliett.india.golf.", {6, 66}},
+                            {"mike.lima.kilo.india.golf.", {77, 7}}});
   EXPECT_EQ(dtree.find(domain_name(".")), dtree.end());
   EXPECT_EQ(dtree.find(domain_name("alpha.")), dtree.end());
   EXPECT_EQ(dtree.find(domain_name("xray.")), dtree.end());
@@ -197,3 +229,150 @@ TEST(domain_tree_test, find) {
     EXPECT_TRUE(cur.value() == 7 || cur.value() == 77);
   }
 }
+
+TYPED_TEST_P(domain_tree_find_test, functor_test_case_0) {
+  TypeParam dtree =
+      generate_domain_tree({{".", {1}}, {"bravo.alpha.", {2, 22}}});
+  {
+    trace_t trace;
+    auto cur = dtree.find(domain_name("."), tracer(trace));
+    ASSERT_NE(cur, dtree.end());
+    EXPECT_EQ(cur.domain(), domain_name("."));
+    EXPECT_EQ(cur.value(), 1);
+    EXPECT_EQ(trace, trace_t({{".", {1}}}));
+  }
+  {
+    trace_t trace;
+    auto cur = dtree.find(domain_name("alpha."), tracer(trace));
+    ASSERT_EQ(cur, dtree.end());
+    EXPECT_EQ(trace, trace_t({{".", {1}}, {".alpha", {}}}));
+  }
+  {
+    trace_t trace;
+    auto cur = dtree.find(domain_name("bravo."), tracer(trace));
+    ASSERT_EQ(cur, dtree.end());
+    EXPECT_EQ(trace, trace_t({{".", {1}}}));
+  }
+  {
+    trace_t trace;
+    auto cur = dtree.find(domain_name("bravo.alpha."), tracer(trace));
+    ASSERT_NE(cur, dtree.end());
+    EXPECT_EQ(cur.domain(), domain_name("bravo.alpha."));
+    EXPECT_TRUE(cur.value() == 2 || cur.value() == 22);
+    EXPECT_EQ(trace,
+              trace_t({{".", {1}}, {".alpha", {}}, {".alpha.bravo", {2, 22}}}));
+  }
+  {
+    trace_t trace;
+    auto cur =
+        dtree.find(domain_name("delta.charile.bravo.alpha."), tracer(trace));
+    ASSERT_EQ(cur, dtree.end());
+    EXPECT_EQ(trace,
+              trace_t({{".", {1}}, {".alpha", {}}, {".alpha.bravo", {2, 22}}}));
+  }
+}
+
+TYPED_TEST_P(domain_tree_find_test, functor_test_case_1) {
+  TypeParam dtree =
+      generate_domain_tree({{"alpha.", {1, 11}},
+                            {"bravo.alpha.", {2}},
+                            {"delta.charlie.bravo.alpha.", {3, 33}}});
+  {
+    trace_t trace;
+    auto cur = dtree.find(domain_name("."), tracer(trace));
+    ASSERT_EQ(cur, dtree.end());
+    EXPECT_EQ(trace, trace_t({{".", {}}}));
+  }
+  {
+    trace_t trace;
+    auto cur = dtree.find(domain_name("alpha."), tracer(trace));
+    ASSERT_NE(cur, dtree.end());
+    EXPECT_EQ(cur.domain(), domain_name("alpha."));
+    EXPECT_TRUE(cur.value() == 1 || cur.value() == 11);
+    EXPECT_EQ(trace, trace_t({{".", {}}, {".alpha", {1, 11}}}));
+  }
+  {
+    trace_t trace;
+    auto cur = dtree.find(domain_name("zulu."), tracer(trace));
+    ASSERT_EQ(cur, dtree.end());
+    EXPECT_EQ(trace, trace_t({{".", {}}}));
+  }
+  {
+    trace_t trace;
+    auto cur = dtree.find(domain_name("xray.zulu."), tracer(trace));
+    ASSERT_EQ(cur, dtree.end());
+    EXPECT_EQ(trace, trace_t({{".", {}}}));
+  }
+  {
+    trace_t trace;
+    auto cur = dtree.find(domain_name("bravo.alpha."), tracer(trace));
+    ASSERT_NE(cur, dtree.end());
+    EXPECT_EQ(cur.domain(), domain_name("bravo.alpha."));
+    EXPECT_EQ(cur.value(), 2);
+    EXPECT_EQ(trace,
+              trace_t({{".", {}}, {".alpha", {1, 11}}, {".alpha.bravo", {2}}}));
+  }
+  {
+    trace_t trace;
+    auto cur = dtree.find(domain_name("zulu.alpha."), tracer(trace));
+    ASSERT_EQ(cur, dtree.end());
+    EXPECT_EQ(trace, trace_t({{".", {}}, {".alpha", {1, 11}}}));
+  }
+  {
+    trace_t trace;
+    auto cur = dtree.find(domain_name("zulu.bravo.alpha."), tracer(trace));
+    ASSERT_EQ(cur, dtree.end());
+    EXPECT_EQ(trace,
+              trace_t({{".", {}}, {".alpha", {1, 11}}, {".alpha.bravo", {2}}}));
+  }
+  {
+    trace_t trace;
+    auto cur = dtree.find(domain_name("charlie.bravo.alpha."), tracer(trace));
+    ASSERT_EQ(cur, dtree.end());
+    EXPECT_EQ(trace, trace_t({{".", {}},
+                              {".alpha", {1, 11}},
+                              {".alpha.bravo", {2}},
+                              {".alpha.bravo.charlie", {}}}));
+  }
+  {
+    trace_t trace;
+    auto cur =
+        dtree.find(domain_name("zulu.charlie.bravo.alpha."), tracer(trace));
+    ASSERT_EQ(cur, dtree.end());
+    EXPECT_EQ(trace, trace_t({{".", {}},
+                              {".alpha", {1, 11}},
+                              {".alpha.bravo", {2}},
+                              {".alpha.bravo.charlie", {}}}));
+  }
+  {
+    trace_t trace;
+    auto cur =
+        dtree.find(domain_name("delta.charlie.bravo.alpha."), tracer(trace));
+    ASSERT_NE(cur, dtree.end());
+    EXPECT_EQ(cur.domain(), domain_name("delta.charlie.bravo.alpha."));
+    EXPECT_TRUE(cur.value() == 3 || cur.value() == 33);
+    EXPECT_EQ(trace, trace_t({{".", {}},
+                              {".alpha", {1, 11}},
+                              {".alpha.bravo", {2}},
+                              {".alpha.bravo.charlie", {}},
+                              {".alpha.bravo.charlie.delta", {3, 33}}}));
+  }
+  {
+    trace_t trace;
+    auto cur = dtree.find(domain_name("zulu.delta.charlie.bravo.alpha."),
+                          tracer(trace));
+    ASSERT_EQ(cur, dtree.end());
+    EXPECT_EQ(trace, trace_t({{".", {}},
+                              {".alpha", {1, 11}},
+                              {".alpha.bravo", {2}},
+                              {".alpha.bravo.charlie", {}},
+                              {".alpha.bravo.charlie.delta", {3, 33}}}));
+  }
+}
+
+REGISTER_TYPED_TEST_SUITE_P(domain_tree_find_test, no_functor,
+                            functor_test_case_0, functor_test_case_1);
+using domain_tree_find_test_types =
+    ::testing::Types<domain_tree<int>, const domain_tree<int>>;
+INSTANTIATE_TYPED_TEST_SUITE_P(_, domain_tree_find_test,
+                               domain_tree_find_test_types, );

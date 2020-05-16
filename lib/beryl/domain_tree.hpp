@@ -219,7 +219,7 @@ public:
   cursor find(const domain_name& dname) {
     cursor cur = root();
     for (const auto& label : dname) {
-      typename cursor::node_pointer n = cur.current_node();
+      auto n = cur.current_node();
       if (auto child_node = n->find(label); child_node != n->children_end()) {
         cur.decend_to_child(child_node);
       } else {
@@ -232,9 +232,49 @@ public:
   const_cursor find(const domain_name& dname) const {
     const_cursor cur = root();
     for (const auto& label : dname) {
-      typename cursor::node_pointer n = cur.current_node();
+      auto n = cur.current_node();
       if (auto child_node = n->find(label); child_node != n->children_end()) {
         cur.decend_to_child(child_node);
+      } else {
+        return end();
+      }
+    }
+    return cur.current_node()->values_empty() ? end() : cur;
+  }
+
+  template <typename Functor>
+  cursor find(const domain_name& dname, Functor f) {
+    auto apply_f = [&f](cursor& cur) {
+      auto n = cur.current_node();
+      f(cur.domain(), n->values_begin(), n->values_end());
+    };
+    cursor cur = root();
+    apply_f(cur);
+    for (const auto& label : dname) {
+      auto n = cur.current_node();
+      if (auto child_node = n->find(label); child_node != n->children_end()) {
+        cur.decend_to_child(child_node);
+        apply_f(cur);
+      } else {
+        return end();
+      }
+    }
+    return cur.current_node()->values_empty() ? end() : cur;
+  }
+
+  template <typename Functor>
+  const_cursor find(const domain_name& dname, Functor f) const {
+    auto apply_f = [&f](const_cursor& cur) {
+      auto n = cur.current_node();
+      f(cur.domain(), n->values_begin(), n->values_end());
+    };
+    const_cursor cur = root();
+    apply_f(cur);
+    for (const auto& label : dname) {
+      auto n = cur.current_node();
+      if (auto child_node = n->find(label); child_node != n->children_end()) {
+        cur.decend_to_child(child_node);
+        apply_f(cur);
       } else {
         return end();
       }
@@ -257,8 +297,7 @@ private:
   cursor insert(const domain_name& dname) {
     cursor cur = root();
     for (const auto& label : dname) {
-      typename node::iterator new_node =
-          cur.current_node()->insert_child(label).first;
+      auto new_node = cur.current_node()->insert_child(label).first;
       cur.decend_to_child(new_node);
     }
     return cur;
