@@ -27,12 +27,12 @@ ENV LOGNAME=$username USER=$username
 RUN apt-get update && apt-get install --yes --no-install-recommends apt-utils
 
 # Set the locale
-RUN apt-get install --yes --no-install-recommends locales
+RUN apt-get update && apt-get install --yes --no-install-recommends locales
 RUN locale-gen $locale && update-locale LANG=$locale LC_CTYPE=$locale
 ENV LANG=$locale LC_ALL=$locale
 
 # Install the packages for C++ development and convenient command line usage
-RUN apt-get install --yes --no-install-recommends \
+RUN apt-get update && apt-get install --yes --no-install-recommends \
         sudo lsb-release software-properties-common tzdata \
         bash-completion coreutils less tree tmux vim gnupg2 ca-certificates \
         man-db manpages manpages-dev \
