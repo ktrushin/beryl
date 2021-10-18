@@ -17,7 +17,7 @@ is intentionally avoided. Instead, three separate directories are used:
 `include` is dedicated for public header files of the libraries.
 Not olnly does it intoroduce a better layout and but also prevents too deep
 directory nesting. Each of three directories mentioned above has a separate
-subdirectory for each library/binary (only `ssi` at the moment). That makes
+subdirectory for each library/binary. That makes
 it easy to extend the project with other libraries/binaries just by placing
 their subdirectories alongside with existing one.
 
