@@ -17,7 +17,11 @@ host_prompt> ../ganvigar/devenv-launch ganvigar/dev.conf
 ```
 Run the formatter and the linter:
 ```
-container_prompt> ./tools/clang-format.sh
+container_prompt> git add <changed files>
+container_prompt> git-clang-format
+container_prompt> <examine_the_changes>
+container_prompt> git add <files_formatted_with_clang_format>
+container_prompt>
 container_prompt> ./tools/clang-tidy.sh
 ```
 Compile with GCC and run unit tests:
